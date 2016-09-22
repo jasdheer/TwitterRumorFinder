@@ -4,33 +4,36 @@ from tweepy import StreamListener
 from tweepy import Stream
 import configparser
 import datetime
+import json
+import re
 
 class StdOutListener(StreamListener):
     def on_data(self,data):
-        #print(data)
-        #tweet_lang = data.split(',"lang":"')[1].split('","timestamp_ms')[0]
-        #print(tweet_lang)
-        #if tweet_lang.lower() != "en":
-        tweet_id = data.split(',"id_str":"')[1].split('","text')[0]
-        tweet_text = data.split(',"text":"')[1].split('","source')[0]
-        tweet_timestamp = data.split(',"timestamp_ms":"')[1].split('"')[0]
-        
-        user_info = data.split(',"user":{')[1].split('","geo')[0]
-        user_id = user_info.split('"id":')[1].split(',"id_str')[0]
-        user_nr_followers =  user_info.split(',"followers_count":')[1].split(',"friends_count')[0]
-        user_nr_friends = user_info.split(',"friends_count":')[1].split(',"listed_count')[0]
-        
-        tweet_time = self.convert_timestamp(tweet_timestamp)
-        
         try:
-            file = open('dataset/tweets_drugs_alcohol.csv','a')
-            file.write(str(tweet_time) + ',' + tweet_id + ',' + user_id + ',' + user_nr_followers + ',' + user_nr_friends + ',' + tweet_text)		
-            file.write('\n')
-            file.close()
-            return True
-        except IOError:
-            print("Could not read the file")
-            
+            ##load data as json format
+            print(data)
+            data = data.replace('\\n', ' ')
+            tweet_data = json.loads(data)
+            tweet_lang = tweet_data['lang']
+        
+            if tweet_lang.lower() == "en":
+                tweet_id = tweet_data['id_str']
+                tweet_text = tweet_data['text']
+                tweet_time = self.convert_timestamp(tweet_data['timestamp_ms'])
+                
+                user_id = tweet_data['user']['id_str']
+                user_nr_followers = tweet_data['user']['followers_count']
+                user_nr_friends = tweet_data['user']['friends_count']            
+                try:
+                    file = open('dataset/tweets_drugs_alcohol.csv','a')
+                    file.write(str(tweet_time) + '\t' + str(tweet_id) + '\t' + str(user_id) + '\t' + str(user_nr_followers) + '\t' + str(user_nr_friends) + '\t' + tweet_text.lower())		
+                    file.write('\n')
+                    file.close()
+                    return True
+                except IOError:
+                    return False
+        except ValueError as error:
+            return False
 
     def convert_timestamp(self, timestamp):
         s = float(timestamp) / 1000.0
@@ -43,7 +46,7 @@ class StdOutListener(StreamListener):
 if __name__ == '__main__':
     
     file = open('dataset/tweets_drugs_alcohol.csv','w')
-    file.write("tweet_time" + ',' + "tweet_id" + ',' + "user_id" + ',' + "Nr of followers" + ',' + "Nr of friends" + ',' + "tweet_text")
+    file.write("tweet_time" + '\t' + "tweet_id" + '\t' + "user_id" + '\t' + "Nr of followers" + '\t' + "Nr of friends" + '\t' + "tweet_text")
     file.write('\n')
     file.close()
     
@@ -61,6 +64,5 @@ if __name__ == '__main__':
     auth.set_access_token(access_token, access_secret)
 
     stream = Stream(auth,l)
-
     ##keywords that searching in tweets
     stream.filter(track = ['drug','alcohol'])
