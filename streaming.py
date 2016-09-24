@@ -1,3 +1,4 @@
+#!/usr/bin/python3.4
 import tweepy
 from tweepy import OAuthHandler
 from tweepy import StreamListener
@@ -11,7 +12,6 @@ class StdOutListener(StreamListener):
     def on_data(self,data):
         try:
             ##load data as json format
-            print(data)
             data = data.replace('\\n', ' ')
             tweet_data = json.loads(data)
             tweet_lang = tweet_data['lang']
