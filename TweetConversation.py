@@ -46,7 +46,7 @@ with open('dataset/tweets_drugs_alcohol.csv', newline='') as f:
 			
 			reply_counter = 0
 			for link in page.xpath("//a//span[2]//b"):
-				time.sleep(2)
+				time.sleep(1)
 				for page2 in tweepy.Cursor(api.user_timeline, id=link.text).pages(5):
 					time.sleep(1)
 					for item in page2:
