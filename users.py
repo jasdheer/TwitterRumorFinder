@@ -30,15 +30,15 @@ class Users_list():
             return False
 
     def write_users(self):
-        ##Write the list of users_id in a new csv file
+        ##Write the list of users_id in a csv file
         for i in range(0, len(self.user_id)):
             if self.label[i] == 'R':
-                fr = open('dataset/rumor_users.csv','a')
+                fr = open('dataset/users/rumor_users.csv','a')
                 fr.write(str(self.user_id[i]))
                 fr.write('\n')
                 fr.close()
             elif self.label[i] == 'NR':
-                fnr = open('dataset/no_rumor_users.csv', 'a')
+                fnr = open('dataset/users/no_rumor_users.csv', 'a')
                 fnr.write(str(self.user_id[i]))
                 fnr.write('\n')
                 fnr.close()
@@ -53,4 +53,4 @@ if __name__ == '__main__':
     obj.write_users()
     
     print("Files are ready")
-    time.sleep(2)
+    time.sleep(0.5)
