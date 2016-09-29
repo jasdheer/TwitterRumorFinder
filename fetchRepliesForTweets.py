@@ -123,7 +123,7 @@ def conv_search(api):
         file2.close()
         file3.write('\n\n')
         file3.close()
-        print("Replies are now in file : replies/replies.csv"    
+        print("Replies are now in file : replies/replies.csv")    
         
 if __name__ == "__main__":
     config = configparser.ConfigParser()
