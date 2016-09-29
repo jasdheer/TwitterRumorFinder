@@ -1,6 +1,8 @@
 #!/usr/bin/python3.4
 import tweepy
 from tweepy import OAuthHandler
+from langdetect import detect
+import langdetect
 from glob import glob
 import configparser
 import csv
@@ -23,14 +25,21 @@ class Retrieve_Tweets():
             return False
         
         count_tweets = 0;
-        for i in range(24, len(self.user_id)): 
+        count_keyword_tweets = 0;
+        for i in range(0, len(self.user_id)): 
             user = self.user_id[i]
             try:
-                for tweet in tweepy.Cursor(api.user_timeline, id=user, lang='en').items(100):
-                    count_tweets += 1
-                    print(count_tweets)
-                    if self.keyword in tweet.text:
-                        self.on_data(tweet)
+                for tweet in tweepy.Cursor(api.user_timeline, id=user, lang = 'en').items(100):
+                    #count_tweets += 1
+                    #print(count_tweets)
+                    try:
+                        if (detect(tweet.text) == 'en'):
+                            if self.keyword in tweet.text:
+                                count_keyword_tweets +=1
+                                print(count_keyword_tweets)
+                                self.on_data(tweet)
+                    except langdetect.lang_detect_exception.LangDetectException as e:
+                        pass
             except tweepy.TweepError as a:
                 print('TweepyError!!!')
                 if "429" in str(a):
@@ -84,6 +93,7 @@ class Create_File():
         file.write("tweet_time" + '\t' + "tweet_id" + '\t' + "user_id" + '\t' + "original_tweet_id" + '\t' + "original_user_id" + '\t' +"#offollowers" + '\t' + "#offriends" + '\t' + "tweet_text")
         file.write('\n')
         file.close()
+        
 
 if __name__ == '__main__':
     print("### SEARCH THE TWEETS OF USERS FOR A SPECIFIC WORD ###\n")
@@ -106,7 +116,7 @@ if __name__ == '__main__':
     fileR.create()
     #fileNR = Create_File('no_rumor_users.csv')
     #fileNR.create()
-
+    
     keyword = input('Please, insert the keyword: ')
     obj = Retrieve_Tweets('rumor_users.csv', keyword)
     obj.retrieve()
