@@ -16,7 +16,7 @@ class Retrieve_Tweets():
     def retrieve(self):
         self.user_id = []
         try:
-            f = open('dataset/'+self.file, 'r')
+            f = open('dataset/users/'+self.file, 'r')
             reader = csv.reader(f)
             for row in reader:
                 self.user_id.append(row[0])
@@ -24,8 +24,8 @@ class Retrieve_Tweets():
             print("Error: File could not open or does not exist")
             return False
         
-        count_tweets = 0;
-        count_keyword_tweets = 0;
+        #count_tweets = 0;
+        #count_keyword_tweets = 0;
         for i in range(0, len(self.user_id)): 
             user = self.user_id[i]
             try:
@@ -35,18 +35,13 @@ class Retrieve_Tweets():
                     try:
                         if (detect(tweet.text) == 'en'):
                             if self.keyword in tweet.text:
-                                count_keyword_tweets +=1
-                                print(count_keyword_tweets)
+                                #count_keyword_tweets +=1
+                                #print(count_keyword_tweets)
                                 self.on_data(tweet)
                     except langdetect.lang_detect_exception.LangDetectException as e:
                         pass
             except tweepy.TweepError as a:
-                print('TweepyError!!!')
-                if "429" in str(a):
-                    print('Too many requests!!!')
-                    print ('Please wait ...... It will continue itself after 15 minutes.')
-                    print ('Current Time : '+ str(datetime.datetime.now().time()))
-                    time.sleep(60*15)                
+                print('TweepyError!!!')             
                 pass
 
     def on_data(self, data):
@@ -109,7 +104,7 @@ if __name__ == '__main__':
 
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_token, access_secret)
-    api = tweepy.API(auth)
+    api = tweepy.API(auth,  wait_on_rate_limit = True,  wait_on_rate_limit_notify = True)
     
     ##Create output files
     fileR = Create_File('rumor_users.csv')
