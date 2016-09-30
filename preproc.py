@@ -21,7 +21,7 @@ class Tweets():
         self.input = input_file
 
     def read_tweets(self):
-        ##Read all the user_id entries and their tweets label
+        ##Read all the tweets and save them in a list, which is returned to the main process
         self.tweet_text = []
         try:
             f = open(self.input, 'r')
@@ -70,6 +70,7 @@ class Methods():
             stem_list.append(stem(word))
         return stem_list
 
+##Create a file and append it with the tokens for each tweet
 class Create_File():
     def __init__(self, file):
         self.file = file
@@ -87,23 +88,29 @@ class Create_File():
 
 if __name__ == '__main__':
     print("### PRE-PROCESSING PROCEDURE ###\n")  
-    filename = 'dataset/tweets/rumors.csv'
     
+    ##Get the tweets from the file and save them in a list
+    filename = 'dataset/tweets/rumors.csv'
     obj = Tweets(filename)
     tweets = obj.read_tweets()
 
-    token_list = []
 
+    token_list = []
     proc = Methods()
     
+    ##For each tweet call the functions to remove urls, emojis and stop_words
+    ##remove_stop_words, split the tweet in token words
     for i in range(0, len(tweets)):
         tweets[i] = proc.remove_urls(tweets[i])
         tweets[i] = proc.remove_emojis(tweets[i])
         token_list.append(proc.remove_stop_words(tweets[i]))
 
+    ##Stem the token words
     for i in range(0, len(token_list)):
         token_list[i] = proc.stemming(token_list[i])
     
+    ##Create a new file in tokens folder
+    ##Save the tokens for each tweet
     cf = Create_File('rumors.csv')
     cf.create()
     
